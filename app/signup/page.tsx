@@ -73,12 +73,23 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 font-sans">
-      <div className="max-w-2xl w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 space-y-6">
+    <div className="relative min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
+      
+      {/* E-Commerce High-Res Shopping Background Image with Medium Opacity & Overlay */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-30 scale-105 transition-transform duration-1000"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1920&q=80')"
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-indigo-950/70 to-slate-950/90 backdrop-blur-sm" />
+
+      {/* Form Card Overlay */}
+      <div className="relative z-10 max-w-2xl w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl border border-white/40 dark:border-slate-800 shadow-2xl p-8 space-y-6">
         
         {/* Title Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-md">
             <FontAwesomeIcon icon={faUserPlus} className="w-7 h-7" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">নতুন গ্রাহক অ্যাকাউন্ট নিবন্ধন</h1>
@@ -100,7 +111,7 @@ export default function SignupPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faUser} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -117,7 +128,7 @@ export default function SignupPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -138,7 +149,7 @@ export default function SignupPage() {
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -155,7 +166,7 @@ export default function SignupPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -174,7 +185,7 @@ export default function SignupPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
               <FontAwesomeIcon icon={faPhone} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
             </div>
@@ -192,7 +203,7 @@ export default function SignupPage() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
               <FontAwesomeIcon icon={faMapMarkerAlt} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
             </div>
@@ -211,7 +222,7 @@ export default function SignupPage() {
                   value={formData.city}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faCity} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -228,7 +239,7 @@ export default function SignupPage() {
                   value={formData.zipCode}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faMailBulk} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -238,7 +249,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl border-none shadow-md transition-all flex items-center justify-center gap-2 mt-4"
+            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl border-none shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 mt-4"
           >
             {isLoading ? (
               <span className="loading loading-spinner loading-sm"></span>
