@@ -9,6 +9,7 @@ export interface UserSession {
   name: string;
   email: string;
   role: 'user' | 'admin';
+  gender?: 'male' | 'female';
   avatar: string;
   phone?: string;
   address?: string;
@@ -20,6 +21,7 @@ interface SignupParams {
   name: string;
   email: string;
   password: string;
+  gender: 'male' | 'female';
   phone: string;
   address: string;
   city: string;

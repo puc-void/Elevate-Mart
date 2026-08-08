@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faEnvelope, faLock, faUser, faPhone, faMapMarkerAlt, faCity, faMailBulk, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faEnvelope, faLock, faUser, faPhone, faMapMarkerAlt, faCity, faMailBulk, faEye, faEyeSlash, faVenusMars, faMars, faVenus } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -27,6 +27,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    gender: 'male' as 'male' | 'female',
     phone: '',
     address: '',
     city: '',
@@ -70,6 +71,7 @@ export default function SignupPage() {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
+        gender: formData.gender,
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         city: formData.city.trim(),
@@ -88,7 +90,7 @@ export default function SignupPage() {
   return (
     <div className="relative min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       
-      {/* E-Commerce High-Res Background Image Overlay */}
+      {/* Background Image Overlay */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-30 scale-105 transition-transform duration-1000"
         style={{
@@ -100,7 +102,7 @@ export default function SignupPage() {
       {/* Form Card */}
       <div className="relative z-10 max-w-2xl w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl border border-white/40 dark:border-slate-800 shadow-2xl p-8 space-y-6">
         
-        {/* Title Header */}
+        {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-md">
             <FontAwesomeIcon icon={faUserPlus} className="w-7 h-7" />
@@ -111,7 +113,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5 font-sans">
           
-          {/* Full Name & Email */}
+          {/* Name & Gender */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
@@ -130,25 +132,60 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Gender Selection Option (Male / Female) */}
             <div>
               <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                ইমেইল অ্যাড্রেস <span className="text-rose-500">*</span>
+                লিঙ্গ (Gender) <span className="text-rose-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-                />
-                <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: 'male' })}
+                  className={`py-3 px-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border transition-all ${
+                    formData.gender === 'male'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faMars} className="w-4 h-4" />
+                  <span>পুরুষ</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, gender: 'female' })}
+                  className={`py-3 px-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border transition-all ${
+                    formData.gender === 'female'
+                      ? 'bg-rose-600 text-white border-rose-600 shadow-md'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faVenus} className="w-4 h-4" />
+                  <span>নারী</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Passwords with Show/Hide Toggle Buttons */}
+          {/* Email */}
+          <div>
+            <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              ইমেইল অ্যাড্রেস <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              />
+              <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+
+          {/* Passwords with Show/Hide Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
@@ -220,7 +257,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Full Shipping Address */}
+          {/* Detailed Shipping Address */}
           <div>
             <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               বিস্তারিত ঠিকানা (গ্রাম/রোড/বাসা) <span className="text-rose-500">*</span>
@@ -238,7 +275,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* City (64 Bangladesh Districts Select Dropdown with Default Option) & Zip Code */}
+          {/* City (64 Bangladesh Districts Select Dropdown) & Zip Code */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">

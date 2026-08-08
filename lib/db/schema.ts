@@ -1,4 +1,5 @@
 export type Role = 'user' | 'admin';
+export type Gender = 'male' | 'female';
 
 export interface User {
   id: string;
@@ -6,6 +7,7 @@ export interface User {
   email: string;
   password?: string;
   role: Role;
+  gender?: Gender;
   avatar: string;
   phone?: string;
   address?: string;

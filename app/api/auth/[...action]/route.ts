@@ -53,6 +53,7 @@ export async function POST(
         name: user.name,
         email: user.email,
         role: user.role,
+        gender: user.gender || 'male',
         avatar: user.avatar,
         phone: user.phone,
         address: user.address,
@@ -69,10 +70,11 @@ export async function POST(
     }
 
     if (subAction === 'signup') {
-      const { name, email, password, phone, address, city, zipCode } = body as {
+      const { name, email, password, gender, phone, address, city, zipCode } = body as {
         name?: string;
         email?: string;
         password?: string;
+        gender?: 'male' | 'female';
         phone?: string;
         address?: string;
         city?: string;
@@ -80,7 +82,7 @@ export async function POST(
       };
 
       if (!name || !email || !password || !phone || !address || !city || !zipCode) {
-        return NextResponse.json({ error: 'ডাটাবেজের সকল তথ্য (নাম, ইমেইল, পাসওয়ার্ড, মোবাইল, ঠিকানা, শহর, পোস্টাল কোড) পূরণ করা আবশ্যক' }, { status: 400 });
+        return NextResponse.json({ error: 'ডাটাবেজের সকল তথ্য (নাম, ইমেইল, পাসওয়ার্ড, মোবাইল, ঠিকানা, জিলা, পোস্টাল কোড) পূরণ করা আবশ্যক' }, { status: 400 });
       }
 
       if (!EMAIL_REGEX.test(email)) {
@@ -97,15 +99,20 @@ export async function POST(
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      const userGender = gender === 'female' ? 'female' : 'male';
       
-      // NOTE: Admin accounts CANNOT be created from the website interface. Forced to 'user' role.
-      // Admin role must be granted manually via Neon Database SQL Console (UPDATE users SET role = 'admin' WHERE email = '...').
+      // Gender-specific default avatar URL
+      const defaultAvatar = userGender === 'female'
+        ? `https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80`
+        : `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80`;
+
       const newUser = await db.createUser({
         name,
         email,
         password: hashedPassword,
         role: 'user',
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
+        gender: userGender,
+        avatar: defaultAvatar,
         phone,
         address,
         city,

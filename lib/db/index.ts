@@ -286,6 +286,7 @@ function mapUser(row: any): User {
     email: row.email,
     password: row.password,
     role: row.role,
+    gender: row.gender || 'male',
     avatar: row.avatar,
     phone: row.phone,
     address: row.address,
@@ -599,9 +600,9 @@ export const db = {
       try {
         await sqlClient`
           INSERT INTO users (
-            id, name, email, password, role, avatar, phone, address, city, zip_code
+            id, name, email, password, role, gender, avatar, phone, address, city, zip_code
           ) VALUES (
-            ${newUser.id}, ${newUser.name}, ${newUser.email}, ${newUser.password || ''}, ${newUser.role}, ${newUser.avatar}, ${newUser.phone || null}, ${newUser.address || null}, ${newUser.city || null}, ${newUser.zipCode || null}
+            ${newUser.id}, ${newUser.name}, ${newUser.email}, ${newUser.password || ''}, ${newUser.role}, ${newUser.gender || 'male'}, ${newUser.avatar}, ${newUser.phone || null}, ${newUser.address || null}, ${newUser.city || null}, ${newUser.zipCode || null}
           )
         `;
       } catch (e) {
@@ -636,6 +637,7 @@ export const db = {
     if (sqlClient) {
       try {
         if (updates.name) await sqlClient`UPDATE users SET name = ${updates.name} WHERE id = ${userId}`;
+        if (updates.gender) await sqlClient`UPDATE users SET gender = ${updates.gender} WHERE id = ${userId}`;
         if (updates.phone !== undefined) await sqlClient`UPDATE users SET phone = ${updates.phone} WHERE id = ${userId}`;
         if (updates.address !== undefined) await sqlClient`UPDATE users SET address = ${updates.address} WHERE id = ${userId}`;
         if (updates.city !== undefined) await sqlClient`UPDATE users SET city = ${updates.city} WHERE id = ${userId}`;

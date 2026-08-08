@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL,
   role VARCHAR(20) NOT NULL DEFAULT 'user',
+  gender VARCHAR(20) DEFAULT 'male',
   avatar TEXT,
   phone VARCHAR(50),
   address TEXT,
@@ -15,6 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
   zip_code VARCHAR(20),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'male';
 
 -- 2. Create Categories Table
 CREATE TABLE IF NOT EXISTS categories (

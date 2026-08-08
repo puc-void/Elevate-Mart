@@ -14,7 +14,10 @@ import {
   faCheckCircle,
   faShieldAlt,
   faSave,
-  faImage
+  faImage,
+  faVenusMars,
+  faMars,
+  faVenus
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
@@ -37,6 +40,7 @@ export default function ProfilePage() {
 
   const [formData, setFormData] = useState({
     name: '',
+    gender: 'male' as 'male' | 'female',
     phone: '',
     address: '',
     city: 'ঢাকা',
@@ -48,6 +52,7 @@ export default function ProfilePage() {
     if (user) {
       setFormData({
         name: user.name || '',
+        gender: user.gender || 'male',
         phone: user.phone || '',
         address: user.address || '',
         city: user.city || 'ঢাকা',
@@ -65,6 +70,7 @@ export default function ProfilePage() {
     if (user) {
       setFormData({
         name: user.name || '',
+        gender: user.gender || 'male',
         phone: user.phone || '',
         address: user.address || '',
         city: user.city || 'ঢাকা',
@@ -84,12 +90,21 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
+      // Auto-update avatar if switching gender and using default
+      let newAvatar = formData.avatar;
+      if (!newAvatar || newAvatar.includes('unsplash.com/photo-')) {
+        newAvatar = formData.gender === 'female'
+          ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80'
+          : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80';
+      }
+
       const res = await fetch('/api/users', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update-profile',
-          ...formData
+          ...formData,
+          avatar: newAvatar
         })
       });
       const data = await res.json();
@@ -131,19 +146,19 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Profile Card Header */}
+        {/* Profile Card Header with Gender Badge */}
         <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
           
           <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100 dark:border-slate-800 text-center sm:text-left">
             <img
-              src={user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Profile'}
+              src={user.avatar || (user.gender === 'female' ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80')}
               alt={user.name}
               className="w-20 h-20 rounded-full border-4 border-indigo-600/30 shadow-lg object-cover bg-slate-100 dark:bg-slate-800"
             />
             <div className="space-y-1">
               <h2 className="text-2xl font-black text-slate-900 dark:text-white">{user.name}</h2>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400">{user.email}</p>
-              <div className="pt-1">
+              <div className="pt-1 flex flex-wrap items-center gap-2">
                 <span className={`inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full ${
                   user.role === 'admin'
                     ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200'
@@ -151,6 +166,13 @@ export default function ProfilePage() {
                 }`}>
                   <FontAwesomeIcon icon={user.role === 'admin' ? faShieldAlt : faCheckCircle} className="w-3.5 h-3.5" />
                   <span>{user.role === 'admin' ? 'অ্যাডমিন অ্যাকাউন্ট' : 'যাচাইকৃত গ্রাহক'}</span>
+                </span>
+
+                <span className={`inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full ${
+                  user.gender === 'female' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200'
+                }`}>
+                  <FontAwesomeIcon icon={user.gender === 'female' ? faVenus : faMars} className="w-3.5 h-3.5" />
+                  <span>{user.gender === 'female' ? 'নারী' : 'পুরুষ'}</span>
                 </span>
               </div>
             </div>
@@ -166,6 +188,16 @@ export default function ProfilePage() {
               <p className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                 <FontAwesomeIcon icon={faUser} className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <span>{user.name}</span>
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 space-y-1">
+              <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                লিঙ্গ (Gender)
+              </span>
+              <p className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <FontAwesomeIcon icon={user.gender === 'female' ? faVenus : faMars} className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <span>{user.gender === 'female' ? 'নারী (Female)' : 'পুরুষ (Male)'}</span>
               </p>
             </div>
 
@@ -209,16 +241,6 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-              <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-                পোস্টাল / জিও কোড
-              </span>
-              <p className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <FontAwesomeIcon icon={faMailBulk} className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <span>{user.zipCode || 'তথ্য প্রদান করা হয়নি'}</span>
-              </p>
-            </div>
-
           </div>
         </div>
       </div>
@@ -248,6 +270,39 @@ export default function ProfilePage() {
                   required
                   className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl font-bold text-slate-900 dark:text-white"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                  লিঙ্গ নির্বাচন করুন (Gender)
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, gender: 'male' })}
+                    className={`py-2.5 px-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 border transition-all ${
+                      formData.gender === 'male'
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faMars} className="w-3.5 h-3.5" />
+                    <span>পুরুষ (Male)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, gender: 'female' })}
+                    className={`py-2.5 px-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 border transition-all ${
+                      formData.gender === 'female'
+                        ? 'bg-rose-600 text-white border-rose-600'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faVenus} className="w-3.5 h-3.5" />
+                    <span>নারী (Female)</span>
+                  </button>
+                </div>
               </div>
 
               <div>
