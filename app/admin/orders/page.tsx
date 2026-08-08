@@ -125,7 +125,7 @@ export default function AdminOrdersPage() {
                 </tr>
               ) : (
                 paginatedOrders.map((ord) => (
-                  <tr key={ord.id} className="hover:bg-slate-50/80 border-b border-slate-100 font-sans">
+                  <tr key={ord.id} className="hover:bg-slate-100 dark:hover:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 font-sans">
                     <td className="font-extrabold text-slate-900">#{ord.id}</td>
                     <td>
                       <p className="font-bold text-slate-900">{ord.userName}</p>

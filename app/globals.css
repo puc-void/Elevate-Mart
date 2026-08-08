@@ -53,6 +53,16 @@ html.dark .bg-slate-100 {
   color: #f8fafc !important;
 }
 
+/* FIX: Table row hover in dark mode must NOT turn white */
+html[data-theme="dark"] tr:hover,
+html[data-theme="dark"] .hover\:bg-slate-50:hover,
+html[data-theme="dark"] .hover\:bg-slate-50\/80:hover,
+html.dark tr:hover,
+html.dark .hover\:bg-slate-50:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
 html[data-theme="dark"] .border-slate-200,
 html[data-theme="dark"] .border-slate-100,
 html.dark .border-slate-200,

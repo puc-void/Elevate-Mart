@@ -214,7 +214,7 @@ export default function AdminProductsPage() {
                 </tr>
               ) : (
                 paginatedProducts.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/80 border-b border-slate-100 font-sans">
+                  <tr key={p.id} className="hover:bg-slate-100 dark:hover:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 font-sans">
                     <td>
                       <div className="flex items-center gap-3">
                         <img src={p.images[0]} alt="" className="w-10 h-10 object-cover rounded-xl bg-slate-100 border border-slate-200" />
