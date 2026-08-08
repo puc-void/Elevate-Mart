@@ -11,7 +11,8 @@ import {
   faShoppingBag,
   faHeart,
   faComment,
-  faPaperPlane
+  faPaperPlane,
+  faTag
 } from '@fortawesome/free-solid-svg-icons';
 import { Product, Review } from '@/lib/db/schema';
 import { useCart } from '@/context/CartContext';

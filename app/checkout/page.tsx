@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCreditCard, faMobileAlt, faMoneyBillWave, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faMobileAlt, faMoneyBillWave, faLock, faTag, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { validateCoupon } from '@/lib/coupons';
 import toast from 'react-hot-toast';
 
 export default function CheckoutPage() {
@@ -24,10 +25,33 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'bkash' | 'cash_on_delivery'>('credit_card');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number; description: string } | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('applied_coupon');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const res = validateCoupon(parsed.code, subtotal);
+        if (res.valid && res.coupon) {
+          setAppliedCoupon({
+            code: parsed.code,
+            discountAmount: res.discountAmount,
+            description: res.coupon.description
+          });
+        }
+      } catch {
+        localStorage.removeItem('applied_coupon');
+      }
+    }
+  }, [subtotal]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const netTotalAmount = Math.max(0, totalAmount - couponDiscount);
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +81,7 @@ export default function CheckoutPage() {
           subtotal,
           shipping,
           tax,
-          totalAmount,
+          totalAmount: netTotalAmount,
           paymentMethod,
           shippingAddress: formData
         })
@@ -66,6 +90,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success('অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!');
+        localStorage.removeItem('applied_coupon');
         clearCart();
         router.push('/orders');
       } else {
@@ -91,10 +116,10 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans">
       <div>
         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">অর্ডার চেকআউট</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">ডেলিভারির ঠিকানা লিখুন এবং পছন্দের পেমেন্ট মাধ্যম বেছে নিন</p>
+        <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">ডেলিভারির ঠিকানা লিখুন এবং পছন্দের পেমেন্ট মাধ্যম বেছে নিন</p>
       </div>
 
       <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -235,7 +260,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Order Summary Preview */}
+        {/* Order Summary Preview with Coupon Calculation */}
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
             <h2 className="font-black text-slate-900 dark:text-white text-base border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -268,19 +293,30 @@ export default function CheckoutPage() {
                 <span>ভ্যাট (৫%)</span>
                 <span className="font-extrabold text-slate-800 dark:text-slate-200">৳{tax}</span>
               </div>
+
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-extrabold bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-xl border border-emerald-200 dark:border-emerald-900">
+                  <span className="flex items-center gap-1">
+                    <FontAwesomeIcon icon={faTag} className="w-3 h-3" />
+                    <span>কুপন ছাড় ({appliedCoupon?.code})</span>
+                  </span>
+                  <span>-৳{couponDiscount}</span>
+                </div>
+              )}
+
               <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-baseline text-sm">
                 <span className="font-black text-slate-900 dark:text-white">সর্বমোট প্রদেয়</span>
-                <span className="font-black text-indigo-600 dark:text-indigo-400 text-xl">৳{totalAmount}</span>
+                <span className="font-black text-indigo-600 dark:text-indigo-400 text-xl">৳{netTotalAmount}</span>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full btn btn-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl border-none shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 mt-4"
+              className="w-full btn btn-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl border-none shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 mt-4"
             >
               <FontAwesomeIcon icon={faLock} className="w-4 h-4" />
-              <span>{isSubmitting ? 'অর্ডার সাবমিট হচ্ছে...' : `৳${totalAmount} দিয়ে অর্ডার কনফার্ম করুন`}</span>
+              <span>{isSubmitting ? 'অর্ডার সাবমিট হচ্ছে...' : `৳${netTotalAmount} দিয়ে অর্ডার কনফার্ম করুন`}</span>
             </button>
           </div>
         </div>
