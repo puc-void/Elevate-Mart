@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { items, paymentMethod, shippingAddress, subtotal, shipping, tax, totalAmount } = body;
+    const { items, paymentMethod, shippingAddress, subtotal, shipping, tax, totalAmount, couponCode } = body;
 
     if (!items || items.length === 0 || !shippingAddress) {
       return NextResponse.json({ error: 'Order items and shipping address are required' }, { status: 400 });
@@ -48,6 +48,11 @@ export async function POST(request: NextRequest) {
       status: 'pending',
       shippingAddress
     });
+
+    // Record coupon usage in user database record to prevent duplicate usage
+    if (couponCode) {
+      await db.recordUsedCoupon(session.id, couponCode);
+    }
 
     return NextResponse.json({ message: 'Order placed successfully', order: newOrder }, { status: 201 });
   } catch (error) {

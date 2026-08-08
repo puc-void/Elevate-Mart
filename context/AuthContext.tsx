@@ -15,6 +15,7 @@ export interface UserSession {
   address?: string;
   city?: string;
   zipCode?: string;
+  usedCoupons?: string[];
 }
 
 interface SignupParams {

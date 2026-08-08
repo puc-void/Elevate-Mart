@@ -292,6 +292,7 @@ function mapUser(row: any): User {
     address: row.address,
     city: row.city,
     zipCode: row.zip_code,
+    usedCoupons: row.used_coupons || [],
     createdAt: row.created_at
   };
 }
@@ -656,6 +657,24 @@ export const db = {
     memoryStore.users[idx] = { ...memoryStore.users[idx], ...updates };
     const { password, ...safeUser } = memoryStore.users[idx];
     return safeUser as User;
+  },
+
+  async recordUsedCoupon(userId: string, couponCode: string): Promise<void> {
+    const code = couponCode.trim().toUpperCase();
+    if (sqlClient) {
+      try {
+        await sqlClient`UPDATE users SET used_coupons = array_append(COALESCE(used_coupons, '{}'), ${code}) WHERE id = ${userId}`;
+      } catch (e) {
+        console.warn('Neon recordUsedCoupon error:', e);
+      }
+    }
+    const user = memoryStore.users.find(u => u.id === userId);
+    if (user) {
+      if (!user.usedCoupons) user.usedCoupons = [];
+      if (!user.usedCoupons.includes(code)) {
+        user.usedCoupons.push(code);
+      }
+    }
   },
 
   async deleteUser(userId: string): Promise<boolean> {

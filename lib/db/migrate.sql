@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'male';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS used_coupons TEXT[] DEFAULT '{}';
 
 -- 2. Create Categories Table
 CREATE TABLE IF NOT EXISTS categories (

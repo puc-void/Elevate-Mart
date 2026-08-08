@@ -13,6 +13,7 @@ export interface User {
   address?: string;
   city?: string;
   zipCode?: string;
+  usedCoupons?: string[];
   createdAt: string;
 }
 

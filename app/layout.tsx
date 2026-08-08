@@ -33,7 +33,7 @@ export default function RootLayout({
             <CartProvider>
               <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 w-full flex flex-col justify-between">{children}</main>
               <Footer />
             </CartProvider>
           </AuthProvider>

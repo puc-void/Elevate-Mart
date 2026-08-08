@@ -5,13 +5,27 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faShoppingBag, faArrowRight, faTag, faShieldAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { validateCoupon } from '@/lib/coupons';
 import toast from 'react-hot-toast';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, subtotal, shipping, tax, totalAmount } = useCart();
+  const { user } = useAuth();
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number; description: string } | null>(null);
+
+  const getCombinedUsedCoupons = () => {
+    const dbUsed = user?.usedCoupons || [];
+    let localUsed: string[] = [];
+    try {
+      const saved = localStorage.getItem('ecom_used_coupons');
+      if (saved) localUsed = JSON.parse(saved);
+    } catch {
+      localUsed = [];
+    }
+    return Array.from(new Set([...dbUsed, ...localUsed]));
+  };
 
   useEffect(() => {
     // Check saved coupon in localStorage
@@ -19,19 +33,22 @@ export default function CartPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const res = validateCoupon(parsed.code, subtotal);
+        const res = validateCoupon(parsed.code, subtotal, getCombinedUsedCoupons());
         if (res.valid) {
           setAppliedCoupon({
             code: parsed.code,
             discountAmount: res.discountAmount,
             description: res.coupon!.description
           });
+        } else {
+          setAppliedCoupon(null);
+          localStorage.removeItem('applied_coupon');
         }
       } catch {
         localStorage.removeItem('applied_coupon');
       }
     }
-  }, [subtotal]);
+  }, [subtotal, user?.usedCoupons]);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +57,7 @@ export default function CartPage() {
       return;
     }
 
-    const res = validateCoupon(couponInput, subtotal);
+    const res = validateCoupon(couponInput, subtotal, getCombinedUsedCoupons());
     if (res.valid && res.coupon) {
       const couponData = {
         code: res.coupon.code,
@@ -67,7 +84,7 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-6">
+      <div className="flex-1 w-full min-h-[calc(100vh-16rem)] flex flex-col items-center justify-center max-w-4xl mx-auto px-4 py-16 text-center space-y-6">
         <div className="w-20 h-20 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-sm">
           <FontAwesomeIcon icon={faShoppingBag} className="w-8 h-8" />
         </div>
@@ -83,7 +100,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans">
+    <div className="flex-1 w-full min-h-[calc(100vh-16rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans flex flex-col justify-between">
       
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
@@ -206,10 +223,6 @@ export default function CartPage() {
               <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>ডেলিভারি চার্জ</span>
                 <span className="font-extrabold text-slate-900 dark:text-white">{shipping === 0 ? 'ফ্রি' : `৳${shipping}`}</span>
-              </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                <span>ভ্যাট (৫%)</span>
-                <span className="font-extrabold text-slate-900 dark:text-white">৳{tax}</span>
               </div>
 
               {discountVal > 0 && (

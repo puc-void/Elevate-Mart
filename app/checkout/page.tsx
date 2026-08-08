@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 
 export default function CheckoutPage() {
   const { cart, subtotal, shipping, tax, totalAmount, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -32,19 +32,22 @@ export default function CheckoutPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const res = validateCoupon(parsed.code, subtotal);
+        const res = validateCoupon(parsed.code, subtotal, user?.usedCoupons || []);
         if (res.valid && res.coupon) {
           setAppliedCoupon({
             code: parsed.code,
             discountAmount: res.discountAmount,
             description: res.coupon.description
           });
+        } else {
+          setAppliedCoupon(null);
+          localStorage.removeItem('applied_coupon');
         }
       } catch {
         localStorage.removeItem('applied_coupon');
       }
     }
-  }, [subtotal]);
+  }, [subtotal, user?.usedCoupons]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -82,6 +85,7 @@ export default function CheckoutPage() {
           shipping,
           tax,
           totalAmount: netTotalAmount,
+          couponCode: appliedCoupon?.code || null,
           paymentMethod,
           shippingAddress: formData
         })
@@ -90,7 +94,20 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success('অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!');
+        if (appliedCoupon) {
+          try {
+            const saved = localStorage.getItem('ecom_used_coupons');
+            const list: string[] = saved ? JSON.parse(saved) : [];
+            if (!list.includes(appliedCoupon.code.toUpperCase())) {
+              list.push(appliedCoupon.code.toUpperCase());
+              localStorage.setItem('ecom_used_coupons', JSON.stringify(list));
+            }
+          } catch {
+            // Ignore error
+          }
+        }
         localStorage.removeItem('applied_coupon');
+        await refreshUser();
         clearCart();
         router.push('/orders');
       } else {
@@ -105,7 +122,7 @@ export default function CheckoutPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-4">
+      <div className="flex-1 w-full min-h-[calc(100vh-16rem)] flex flex-col items-center justify-center max-w-3xl mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">চেকআউট করার মতো পণ্য নেই</h2>
         <p className="text-slate-500 dark:text-slate-400">আপনার কার্টে বর্তমানে কোনো পণ্য যোগ করা নেই।</p>
         <Link href="/products" className="btn btn-sm btn-light-primary rounded-xl font-bold">
@@ -116,7 +133,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans">
+    <div className="flex-1 w-full min-h-[calc(100vh-16rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans flex flex-col justify-between">
       <div>
         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">অর্ডার চেকআউট</h1>
         <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">ডেলিভারির ঠিকানা লিখুন এবং পছন্দের পেমেন্ট মাধ্যম বেছে নিন</p>
@@ -288,10 +305,6 @@ export default function CheckoutPage() {
               <div className="flex justify-between">
                 <span>ডেলিভারি চার্জ</span>
                 <span className="font-extrabold text-slate-800 dark:text-slate-200">{shipping === 0 ? 'ফ্রি' : `৳${shipping}`}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>ভ্যাট (৫%)</span>
-                <span className="font-extrabold text-slate-800 dark:text-slate-200">৳{tax}</span>
               </div>
 
               {couponDiscount > 0 && (
