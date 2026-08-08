@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Hind_Siliguri } from 'next/font/google';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Toaster } from 'react-hot-toast';
@@ -27,14 +28,16 @@ export default function RootLayout({
   return (
     <html lang="bn" data-theme="light" className={hindSiliguri.variable}>
       <body className={`${hindSiliguri.className} bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white`}>
-        <AuthProvider>
-          <CartProvider>
-            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

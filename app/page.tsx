@@ -22,7 +22,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-16 pb-12">
-      
+
       {/* Bangla Hero Section */}
       <section className="relative overflow-hidden bg-slate-900 text-white rounded-3xl mx-4 sm:mx-6 lg:mx-8 mt-6 shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/90 via-slate-900/95 to-slate-950/90 z-10" />
@@ -54,13 +54,7 @@ export default async function HomePage() {
               <span>পণ্য কালেকশন দেখুন</span>
               <FontAwesomeIcon icon={faArrowRight} className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            
-            <Link
-              href="/login"
-              className="btn btn-lg bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl border border-white/20 backdrop-blur-md px-6"
-            >
-              ডেমো অ্যাডমিন / কাস্টমার লগইন
-            </Link>
+
           </div>
 
           <div className="flex items-center gap-6 pt-6 text-xs text-slate-400 border-t border-white/10 w-full max-w-xl font-bold">
