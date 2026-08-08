@@ -369,6 +369,23 @@ export const db = {
     return newCategory;
   },
 
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | null> {
+    if (sqlClient) {
+      try {
+        if (updates.name) await sqlClient`UPDATE categories SET name = ${updates.name} WHERE id = ${id}`;
+        if (updates.description !== undefined) await sqlClient`UPDATE categories SET description = ${updates.description} WHERE id = ${id}`;
+        if (updates.image) await sqlClient`UPDATE categories SET image = ${updates.image} WHERE id = ${id}`;
+      } catch (e) {
+        console.warn('Neon updateCategory error:', e);
+      }
+    }
+
+    const idx = memoryStore.categories.findIndex(c => c.id === id);
+    if (idx === -1) return null;
+    memoryStore.categories[idx] = { ...memoryStore.categories[idx], ...updates };
+    return memoryStore.categories[idx];
+  },
+
   async deleteCategory(id: string): Promise<boolean> {
     if (sqlClient) {
       try {

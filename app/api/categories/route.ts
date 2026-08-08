@@ -35,6 +35,31 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PUT(request: NextRequest) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized. Admin access required.' }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const { id, name, description, image } = body;
+    if (!id || !name) {
+      return NextResponse.json({ error: 'Category ID and name are required' }, { status: 400 });
+    }
+
+    const updated = await db.updateCategory(id, { name, description, image });
+    if (!updated) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Category updated successfully', category: updated });
+  } catch (error) {
+    console.error('Update category error:', error);
+    return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   const session = await getSession();
   if (!session || session.role !== 'admin') {

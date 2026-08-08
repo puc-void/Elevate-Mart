@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faFolderTree } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faEdit, faFolderTree } from '@fortawesome/free-solid-svg-icons';
 import { Category, Product } from '@/lib/db/schema';
 import toast from 'react-hot-toast';
 
@@ -13,6 +13,9 @@ export default function AdminCategoriesPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  // Form Fields
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
   const [catImage, setCatImage] = useState('');
@@ -38,7 +41,23 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleAddCategory = async (e: React.FormEvent) => {
+  const openAddModal = () => {
+    setEditingCategory(null);
+    setCatName('');
+    setCatDesc('');
+    setCatImage('');
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (cat: Category) => {
+    setEditingCategory(cat);
+    setCatName(cat.name);
+    setCatDesc(cat.description || '');
+    setCatImage(cat.image || '');
+    setIsModalOpen(true);
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!catName.trim()) {
       toast.error('ক্যাটাগরির নাম বাধ্যতামূলক');
@@ -46,25 +65,43 @@ export default function AdminCategoriesPage() {
     }
 
     try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: catName,
-          description: catDesc,
-          image: catImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'
-        })
-      });
+      if (editingCategory) {
+        const res = await fetch('/api/categories', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingCategory.id,
+            name: catName,
+            description: catDesc,
+            image: catImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'
+          })
+        });
 
-      if (res.ok) {
-        toast.success('ক্যাটাগরি সফলভাবে তৈরি হয়েছে!');
-        setIsModalOpen(false);
-        setCatName('');
-        setCatDesc('');
-        setCatImage('');
-        fetchData();
+        if (res.ok) {
+          toast.success('ক্যাটাগরি সফলভাবে আপডেট করা হয়েছে!');
+          setIsModalOpen(false);
+          fetchData();
+        } else {
+          toast.error('ক্যাটাগরি আপডেট করতে সমস্যা হয়েছে');
+        }
       } else {
-        toast.error('ক্যাটাগরি তৈরি করতে সমস্যা হয়েছে');
+        const res = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: catName,
+            description: catDesc,
+            image: catImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'
+          })
+        });
+
+        if (res.ok) {
+          toast.success('নতুন ক্যাটাগরি সফলভাবে তৈরি হয়েছে!');
+          setIsModalOpen(false);
+          fetchData();
+        } else {
+          toast.error('ক্যাটাগরি তৈরি করতে সমস্যা হয়েছে');
+        }
       }
     } catch {
       toast.error('ত্রুটি ঘটেছে');
@@ -91,11 +128,11 @@ export default function AdminCategoriesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">ক্যাটাগরি ম্যানেজমেন্ট</h1>
-          <p className="text-sm text-slate-500 mt-0.5">দোকানের পণ্যসমূহ সুনির্দিষ্ট ক্যাটাগরিতে সাজিয়ে রাখুন</p>
+          <p className="text-sm text-slate-500 mt-0.5">দোকানের ক্যাটাগরি যোগ করুন, তথ্য এডিট করুন ও সাজান</p>
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openAddModal}
           className="btn btn-sm bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl border-none shadow-md flex items-center gap-1.5"
         >
           <FontAwesomeIcon icon={faPlus} className="w-3.5 h-3.5" />
@@ -122,7 +159,14 @@ export default function AdminCategoriesPage() {
                 </div>
               </div>
 
-              <div className="px-5 pb-5 pt-2 border-t border-slate-100 flex justify-end">
+              <div className="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between">
+                <button
+                  onClick={() => openEditModal(cat)}
+                  className="btn btn-xs btn-ghost text-indigo-600 hover:bg-indigo-50 rounded-lg flex items-center gap-1 font-bold"
+                >
+                  <FontAwesomeIcon icon={faEdit} className="w-3.5 h-3.5" />
+                  <span>এডিট করুন</span>
+                </button>
                 <button
                   onClick={() => handleDeleteCategory(cat.id)}
                   className="btn btn-xs btn-ghost text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1 font-bold"
@@ -136,16 +180,18 @@ export default function AdminCategoriesPage() {
         })}
       </div>
 
-      {/* Add Category Modal */}
+      {/* Add / Edit Category Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <h3 className="font-black text-slate-900 text-base">নতুন ক্যাটাগরি তৈরি</h3>
+              <h3 className="font-black text-slate-900 text-base">
+                {editingCategory ? 'ক্যাটাগরি এডিট করুন' : 'নতুন ক্যাটাগরি তৈরি'}
+              </h3>
               <button onClick={() => setIsModalOpen(false)} className="btn btn-sm btn-circle btn-ghost text-slate-400">✕</button>
             </div>
 
-            <form onSubmit={handleAddCategory} className="space-y-4 text-xs font-sans">
+            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs font-sans">
               <div>
                 <label className="block font-bold text-slate-700 uppercase mb-1">ক্যাটাগরির নাম</label>
                 <input
@@ -180,7 +226,7 @@ export default function AdminCategoriesPage() {
               <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-sm btn-ghost rounded-xl font-bold">বাতিল</button>
                 <button type="submit" className="btn btn-sm bg-indigo-600 text-white font-bold rounded-xl border-none px-5">
-                  তৈরি করুন
+                  সংরক্ষণ করুন
                 </button>
               </div>
             </form>

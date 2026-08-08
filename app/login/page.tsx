@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faSignInAlt, faEnvelope, faLock, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -13,31 +13,27 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function LoginContent() {
   const { login } = useAuth();
   const searchParams = useSearchParams();
+  const urlError = searchParams.get('error');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const error = searchParams.get('error');
-    if (error) {
-      toast.error(error);
-    }
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email.trim() || !password.trim()) {
-      toast.error('ইমেইল এবং পাসওয়ার্ড আবশ্যক');
+      toast.error('ইমেইল ও পাসওয়ার্ড প্রদান করুন');
       return;
     }
 
     if (!EMAIL_REGEX.test(email)) {
-      toast.error('সঠিক ফরম্যাটের ইমেইল অ্যাড্রেস লিখুন');
+      toast.error('সঠিক ফরম্যাটের ইমেইল অ্যাড্রেস লিখুন (যেমন: user@example.com)');
       return;
     }
 
     setIsLoading(true);
+
     try {
       const success = await login(email.trim(), password);
       if (!success) {
@@ -53,19 +49,28 @@ function LoginContent() {
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 font-sans">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 space-y-6">
         
-        {/* Title Header */}
+        {/* Title Header with Medium Bengali Typography */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
             <FontAwesomeIcon icon={faSignInAlt} className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">অ্যাকাউন্টে সাইন ইন করুন</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">অর্ডার সম্পন্ন ও প্রোফাইল নিয়ন্ত্রণ করতে সাইন ইন করুন</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">অ্যাকাউন্টে সাইন ইন করুন</h1>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">আপনার নথিভুক্ত ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
         </div>
 
-        {/* Login Form (No Demo Buttons, No Placeholders, Email Regex) */}
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans">
+        {/* URL Route Guard Notice Alert */}
+        {urlError && (
+          <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-2xl text-amber-900 dark:text-amber-300 text-xs font-bold flex items-center gap-3">
+            <FontAwesomeIcon icon={faExclamationTriangle} className="w-5 h-5 text-amber-600 shrink-0" />
+            <span>{urlError}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5 font-sans">
+          
+          {/* Email Field */}
           <div>
-            <label className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase mb-1">
+            <label className="block text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               ইমেইল অ্যাড্রেস <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -74,14 +79,15 @@ function LoginContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
-              <FontAwesomeIcon icon={faEnvelope} className="absolute left-3.5 top-3 w-3.5 h-3.5 text-slate-400" />
+              <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
             </div>
           </div>
 
+          {/* Password Field */}
           <div>
-            <label className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase mb-1">
+            <label className="block text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               পাসওয়ার্ড <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -90,19 +96,19 @@ function LoginContent() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
-              <FontAwesomeIcon icon={faLock} className="absolute left-3.5 top-3 w-3.5 h-3.5 text-slate-400" />
+              <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
             </div>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl border-none shadow-md transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base rounded-2xl border-none shadow-md transition-all flex items-center justify-center gap-2 mt-4"
           >
             {isLoading ? (
-              <span className="loading loading-spinner loading-xs"></span>
+              <span className="loading loading-spinner loading-sm"></span>
             ) : (
               <>
                 <FontAwesomeIcon icon={faSignInAlt} className="w-4 h-4" />
@@ -112,10 +118,10 @@ function LoginContent() {
           </button>
         </form>
 
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-sm font-bold text-slate-500 dark:text-slate-400">
           নতুন গ্রাহক?{' '}
-          <Link href="/signup" className="font-extrabold text-indigo-600 dark:text-indigo-400 hover:underline">
-            নতুন অ্যাকাউন্ট খুলুন
+          <Link href="/signup" className="font-black text-indigo-600 dark:text-indigo-400 hover:underline">
+            নিবন্ধন করুন
           </Link>
         </div>
       </div>
@@ -125,11 +131,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="loading loading-spinner loading-lg text-indigo-600"></div>
-      </div>
-    }>
+    <Suspense fallback={<div className="p-8 text-center text-slate-500">পেজ লোড হচ্ছে...</div>}>
       <LoginContent />
     </Suspense>
   );
