@@ -4,7 +4,7 @@ import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt, faEnvelope, faLock, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faSignInAlt, faEnvelope, faLock, faExclamationTriangle, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -17,6 +17,7 @@ function LoginContent() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +49,7 @@ function LoginContent() {
   return (
     <div className="relative min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       
-      {/* E-Commerce High-Res Shopping Background Image with Medium Opacity & Overlay */}
+      {/* E-Commerce High-Res Shopping Background Image Overlay */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-30 scale-105 transition-transform duration-1000"
         style={{
@@ -57,7 +58,7 @@ function LoginContent() {
       />
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-indigo-950/70 to-slate-950/90 backdrop-blur-sm" />
 
-      {/* Form Card Overlay */}
+      {/* Form Card */}
       <div className="relative z-10 max-w-md w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl border border-white/40 dark:border-slate-800 shadow-2xl p-8 space-y-6">
         
         {/* Title Header */}
@@ -96,20 +97,29 @@ function LoginContent() {
             </div>
           </div>
 
-          {/* Password Field */}
+          {/* Password Field with Show/Hide Toggle Button */}
           <div>
             <label className="block text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               পাসওয়ার্ড <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                className="w-full pl-11 pr-11 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
               <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+              
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-3.5 p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

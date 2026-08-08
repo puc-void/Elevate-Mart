@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faEnvelope, faLock, faUser, faPhone, faMapMarkerAlt, faCity, faMailBulk } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faEnvelope, faLock, faUser, faPhone, faMapMarkerAlt, faCity, faMailBulk, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -29,10 +29,12 @@ export default function SignupPage() {
     confirmPassword: '',
     phone: '',
     address: '',
-    city: 'ঢাকা',
+    city: '',
     zipCode: ''
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -43,7 +45,7 @@ export default function SignupPage() {
     e.preventDefault();
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.city.trim() || !formData.zipCode.trim()) {
-      toast.error('ডাটাবেজের সকল বাধ্যতামূলক তথ্য পূরণ করুন');
+      toast.error('ডাটাবেজের সকল বাধ্যতামূলক তথ্য ও জেলা নির্বাচন করুন');
       return;
     }
 
@@ -98,7 +100,7 @@ export default function SignupPage() {
       {/* Form Card */}
       <div className="relative z-10 max-w-2xl w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl border border-white/40 dark:border-slate-800 shadow-2xl p-8 space-y-6">
         
-        {/* Title Header with Medium Bengali Font */}
+        {/* Title Header */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-md">
             <FontAwesomeIcon icon={faUserPlus} className="w-7 h-7" />
@@ -146,7 +148,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Passwords */}
+          {/* Passwords with Show/Hide Toggle Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
@@ -154,15 +156,23 @@ export default function SignupPage() {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-11 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-3.5 p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
+                >
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
@@ -172,14 +182,22 @@ export default function SignupPage() {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-11 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-3.5 p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  title={showConfirmPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
+                >
+                  <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -220,7 +238,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* City (64 Bangladesh Districts Select Dropdown) & Zip Code */}
+          {/* City (64 Bangladesh Districts Select Dropdown with Default Option) & Zip Code */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
@@ -234,6 +252,9 @@ export default function SignupPage() {
                   required
                   className="w-full pl-11 pr-4 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-black text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer"
                 >
+                  <option value="" disabled className="font-bold text-slate-400">
+                    জেলা নির্বাচন করুন
+                  </option>
                   {BANGLADESH_DISTRICTS.map((district) => (
                     <option key={district} value={district} className="font-bold text-slate-900 bg-white dark:bg-slate-900 dark:text-white">
                       {district}
