@@ -20,7 +20,6 @@ interface SignupParams {
   name: string;
   email: string;
   password: string;
-  role?: 'user' | 'admin';
   phone: string;
   address: string;
   city: string;
@@ -106,7 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      // NO AUTO-LOGIN. Redirect to login page for manual sign in.
       toast.success('অ্যাকাউন্ট সফলভাবে নিবন্ধন করা হয়েছে! অনুগ্রহ করে লগইন করুন।');
       router.push('/login');
       return true;

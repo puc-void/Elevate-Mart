@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faEnvelope, faLock, faUser, faPhone, faMapMarkerAlt, faCity, faMailBulk, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faEnvelope, faLock, faUser, faPhone, faMapMarkerAlt, faCity, faMailBulk } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -16,7 +16,6 @@ export default function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user' as 'user' | 'admin',
     phone: '',
     address: '',
     city: '',
@@ -25,7 +24,7 @@ export default function SignupPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -58,7 +57,6 @@ export default function SignupPage() {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
-        role: formData.role,
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         city: formData.city.trim(),
@@ -83,8 +81,8 @@ export default function SignupPage() {
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
             <FontAwesomeIcon icon={faUserPlus} className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">নতুন অ্যাকাউন্ট নিবন্ধন</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">ডাটাবেজের সকল প্রফাইল তথ্য সঠিকভার প্রদান করুন</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">নতুন গ্রাহক অ্যাকাউন্ট নিবন্ধন</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">ডাটাবেজের সকল প্রফাইল তথ্য সঠিকভাবে পূরণ করে সাইন-আপ করুন</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans">
@@ -164,41 +162,21 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Account Role & Mobile Number */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                মোবাইল নম্বর <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                />
-                <FontAwesomeIcon icon={faPhone} className="absolute left-3.5 top-3 w-3.5 h-3.5 text-slate-400" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                অ্যাকাউন্ট রোল <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                >
-                  <option value="user">সাধারণ গ্রাহক (Customer)</option>
-                  <option value="admin">অ্যাডমিনিস্ট্রেটর (Admin)</option>
-                </select>
-                <FontAwesomeIcon icon={faShieldAlt} className="absolute left-3.5 top-3 w-3.5 h-3.5 text-slate-400" />
-              </div>
+          {/* Mobile Number */}
+          <div>
+            <label className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase mb-1">
+              মোবাইল নম্বর <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+              <FontAwesomeIcon icon={faPhone} className="absolute left-3.5 top-3 w-3.5 h-3.5 text-slate-400" />
             </div>
           </div>
 

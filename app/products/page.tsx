@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faFilter, faSlidersH, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faFilter, faSlidersH, faRedo, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Product, Category } from '@/lib/db/schema';
 import ProductCard from '@/components/ProductCard';
 
@@ -16,11 +16,13 @@ function ProductsCatalogContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Filter States
+  // Filter & Pagination States
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [maxPrice, setMaxPrice] = useState<number>(150000);
   const [sortBy, setSortBy] = useState<string>('featured');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     fetchData();
@@ -40,6 +42,7 @@ function ProductsCatalogContent() {
       ]);
       const dataProd = await resProd.json();
       const dataCat = await resCat.json();
+
       setProducts(dataProd.products || []);
       setCategories(dataCat.categories || []);
     } catch (err) {
@@ -70,11 +73,18 @@ function ProductsCatalogContent() {
       return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
     });
 
+  // Pagination Math
+  const totalItems = filteredProducts.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentPaginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
   const resetFilters = () => {
     setSelectedCategory('');
     setSearchQuery('');
     setMaxPrice(150000);
     setSortBy('featured');
+    setCurrentPage(1);
   };
 
   return (
@@ -93,7 +103,7 @@ function ProductsCatalogContent() {
             <span>সাজান:</span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
               className="bg-transparent font-bold text-slate-800 dark:text-slate-100 focus:outline-none cursor-pointer"
             >
               <option value="featured">প্রথমে পপুলার</option>
@@ -131,7 +141,7 @@ function ProductsCatalogContent() {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                   aria-label="পণ্য খুঁজুন"
                   className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-slate-100"
                 />
@@ -146,7 +156,7 @@ function ProductsCatalogContent() {
               </label>
               <div className="space-y-1">
                 <button
-                  onClick={() => setSelectedCategory('')}
+                  onClick={() => { setSelectedCategory(''); setCurrentPage(1); }}
                   className={`w-full text-left px-3 py-2 rounded-xl text-sm font-bold transition-colors flex items-center justify-between ${
                     selectedCategory === ''
                       ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold'
@@ -163,7 +173,7 @@ function ProductsCatalogContent() {
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => { setSelectedCategory(cat.id); setCurrentPage(1); }}
                       className={`w-full text-left px-3 py-2 rounded-xl text-sm font-bold transition-colors flex items-center justify-between ${
                         selectedCategory === cat.id
                           ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold'
@@ -194,7 +204,7 @@ function ProductsCatalogContent() {
                 max="150000"
                 step="2000"
                 value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                onChange={(e) => { setMaxPrice(Number(e.target.value)); setCurrentPage(1); }}
                 className="range range-xs range-primary w-full"
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-1">
@@ -206,7 +216,7 @@ function ProductsCatalogContent() {
         </aside>
 
         {/* Product Grid Area */}
-        <main className="lg:col-span-3">
+        <main className="lg:col-span-3 space-y-8">
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
@@ -229,15 +239,60 @@ function ProductsCatalogContent() {
               </button>
             </div>
           ) : (
-            <div>
-              <div className="mb-4 text-xs font-bold text-slate-500 dark:text-slate-400">
-                মোট <strong className="text-slate-900 dark:text-white">{filteredProducts.length}</strong> টি পণ্য পাওয়া গেছে
+            <div className="space-y-8">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+                <span>
+                  প্রদর্শিত {startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalItems)} এর মধ্যে মোট <strong className="text-slate-900 dark:text-white">{totalItems}</strong> টি পণ্য
+                </span>
+                <span className="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full text-[11px]">
+                  পেজ {currentPage} / {totalPages}
+                </span>
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
+                {currentPaginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
+
+              {/* Speed Optimized Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="btn btn-sm btn-outline border-slate-200 dark:border-slate-700 rounded-xl font-bold gap-1 text-slate-700 dark:text-slate-300 disabled:opacity-40"
+                  >
+                    <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
+                    <span>পূর্ববর্তী</span>
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-9 h-9 rounded-xl font-extrabold text-xs transition-all ${
+                          currentPage === pageNum
+                            ? 'bg-indigo-600 text-white shadow-md'
+                            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="btn btn-sm btn-outline border-slate-200 dark:border-slate-700 rounded-xl font-bold gap-1 text-slate-700 dark:text-slate-300 disabled:opacity-40"
+                  >
+                    <span>পরবর্তী</span>
+                    <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </main>

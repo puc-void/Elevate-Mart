@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Order } from '@/lib/db/schema';
 import toast from 'react-hot-toast';
 
@@ -10,6 +10,10 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Selected Order Modal
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -58,6 +62,12 @@ export default function AdminOrdersPage() {
     ? orders
     : orders.filter(o => o.status === statusFilter);
 
+  // Pagination Math
+  const totalItems = filteredOrders.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -78,7 +88,7 @@ export default function AdminOrdersPage() {
           ].map((st) => (
             <button
               key={st.key}
-              onClick={() => setStatusFilter(st.key)}
+              onClick={() => { setStatusFilter(st.key); setCurrentPage(1); }}
               className={`px-3 py-1.5 rounded-xl capitalize transition-all ${
                 statusFilter === st.key
                   ? 'bg-slate-900 text-white font-bold'
@@ -92,7 +102,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4 pb-4">
         <div className="overflow-x-auto">
           <table className="table w-full text-xs text-slate-700">
             <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] border-b border-slate-200">
@@ -107,14 +117,14 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.length === 0 ? (
+              {paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-slate-400 font-bold">
                     কোনো অর্ডার পাওয়া যায়নি
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((ord) => (
+                paginatedOrders.map((ord) => (
                   <tr key={ord.id} className="hover:bg-slate-50/80 border-b border-slate-100 font-sans">
                     <td className="font-extrabold text-slate-900">#{ord.id}</td>
                     <td>
@@ -164,6 +174,30 @@ export default function AdminOrdersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 pt-2 text-xs font-bold text-slate-500">
+            <span>মোট {totalItems} টি অর্ডারের মধ্যে {startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalItems)} প্রদর্শিত</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="btn btn-xs btn-ghost rounded-lg font-bold disabled:opacity-40"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
+              </button>
+              <span>পেজ {currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="btn btn-xs btn-ghost rounded-lg font-bold disabled:opacity-40"
+              >
+                <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Inspect Order Details Modal */}

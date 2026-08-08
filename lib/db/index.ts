@@ -385,23 +385,41 @@ export const db = {
     return false;
   },
 
-  // PRODUCTS
-  async getProducts(params?: { categoryId?: string; search?: string; featured?: boolean }): Promise<Product[]> {
+  // PRODUCTS WITH PAGINATION FOR SPEED OPTIMIZATION
+  async getProducts(params?: {
+    categoryId?: string;
+    search?: string;
+    featured?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{ products: Product[]; total: number; page: number; totalPages: number; limit: number }> {
+    const page = Math.max(1, params?.page || 1);
+    const limit = Math.max(1, params?.limit || 6);
+    const offset = (page - 1) * limit;
+
     if (sqlClient) {
       try {
-        let query = 'SELECT * FROM products WHERE 1=1';
-        if (params?.categoryId) query += ` AND category_id = '${params.categoryId}'`;
-        if (params?.featured) query += ` AND is_featured = true`;
+        let whereClause = ' WHERE 1=1';
+        if (params?.categoryId) whereClause += ` AND category_id = '${params.categoryId}'`;
+        if (params?.featured) whereClause += ` AND is_featured = true`;
         if (params?.search) {
           const s = params.search.replace(/'/g, "''");
-          query += ` AND (LOWER(title) LIKE LOWER('%${s}%') OR LOWER(description) LIKE LOWER('%${s}%'))`;
+          whereClause += ` AND (LOWER(title) LIKE LOWER('%${s}%') OR LOWER(description) LIKE LOWER('%${s}%'))`;
         }
-        query += ' ORDER BY created_at DESC';
 
-        const rows = (await sqlClient.query(query)) as any[];
-        if (rows && rows.length > 0) {
-          return rows.map(mapProduct);
-        }
+        const countResult = (await sqlClient.query(`SELECT COUNT(*) as total FROM products${whereClause}`)) as any[];
+        const total = Number(countResult[0]?.total || 0);
+
+        const rows = (await sqlClient.query(`SELECT * FROM products${whereClause} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`)) as any[];
+        const products = (rows || []).map(mapProduct);
+
+        return {
+          products,
+          total,
+          page,
+          totalPages: Math.ceil(total / limit) || 1,
+          limit
+        };
       } catch (e) {
         console.warn('Neon getProducts error, using fallback:', e);
       }
@@ -418,7 +436,17 @@ export const db = {
       const q = params.search.toLowerCase();
       prods = prods.filter(p => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     }
-    return prods;
+
+    const total = prods.length;
+    const paginatedProducts = prods.slice(offset, offset + limit);
+
+    return {
+      products: paginatedProducts,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit) || 1,
+      limit
+    };
   },
 
   async getProductById(id: string): Promise<Product | null> {
@@ -628,7 +656,7 @@ export const db = {
     return false;
   },
 
-  // ORDERS
+  // ORDERS WITH PAGINATION
   async createOrder(orderData: Omit<Order, 'id' | 'createdAt' | 'trackingNumber'>): Promise<Order> {
     const newOrder: Order = {
       ...orderData,
@@ -669,22 +697,51 @@ export const db = {
     return newOrder;
   },
 
-  async getOrders(userId?: string): Promise<Order[]> {
+  async getOrders(params?: {
+    userId?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ orders: Order[]; total: number; page: number; totalPages: number; limit: number }> {
+    const page = Math.max(1, params?.page || 1);
+    const limit = Math.max(1, params?.limit || 8);
+    const offset = (page - 1) * limit;
+
     if (sqlClient) {
       try {
-        const rows = userId
-          ? (await sqlClient`SELECT * FROM orders WHERE user_id = ${userId} ORDER BY created_at DESC`) as any[]
-          : (await sqlClient`SELECT * FROM orders ORDER BY created_at DESC`) as any[];
-        if (rows && rows.length > 0) return rows.map(mapOrder);
+        const whereClause = params?.userId ? ` WHERE user_id = '${params.userId}'` : '';
+        const countResult = (await sqlClient.query(`SELECT COUNT(*) as total FROM orders${whereClause}`)) as any[];
+        const total = Number(countResult[0]?.total || 0);
+
+        const rows = (await sqlClient.query(`SELECT * FROM orders${whereClause} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`)) as any[];
+        const orders = (rows || []).map(mapOrder);
+
+        return {
+          orders,
+          total,
+          page,
+          totalPages: Math.ceil(total / limit) || 1,
+          limit
+        };
       } catch (e) {
         console.warn('Neon getOrders error:', e);
       }
     }
 
-    if (userId) {
-      return memoryStore.orders.filter(o => o.userId === userId);
+    let filteredOrders = [...memoryStore.orders];
+    if (params?.userId) {
+      filteredOrders = filteredOrders.filter(o => o.userId === params.userId);
     }
-    return memoryStore.orders;
+
+    const total = filteredOrders.length;
+    const paginatedOrders = filteredOrders.slice(offset, offset + limit);
+
+    return {
+      orders: paginatedOrders,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit) || 1,
+      limit
+    };
   },
 
   async getOrderById(id: string): Promise<Order | null> {

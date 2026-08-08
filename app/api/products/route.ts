@@ -7,9 +7,11 @@ export async function GET(request: NextRequest) {
   const categoryId = searchParams.get('categoryId') || undefined;
   const search = searchParams.get('search') || undefined;
   const featured = searchParams.get('featured') === 'true';
+  const page = searchParams.get('page') ? Number(searchParams.get('page')) : undefined;
+  const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : undefined;
 
-  const products = await db.getProducts({ categoryId, search, featured });
-  return NextResponse.json({ products });
+  const result = await db.getProducts({ categoryId, search, featured, page, limit });
+  return NextResponse.json(result);
 }
 
 export async function POST(request: NextRequest) {

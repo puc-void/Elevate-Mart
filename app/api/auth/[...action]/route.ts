@@ -69,11 +69,10 @@ export async function POST(
     }
 
     if (subAction === 'signup') {
-      const { name, email, password, role, phone, address, city, zipCode } = body as {
+      const { name, email, password, phone, address, city, zipCode } = body as {
         name?: string;
         email?: string;
         password?: string;
-        role?: 'user' | 'admin';
         phone?: string;
         address?: string;
         city?: string;
@@ -98,11 +97,14 @@ export async function POST(
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // NOTE: Admin accounts CANNOT be created from the website interface. Forced to 'user' role.
+      // Admin role must be granted manually via Neon Database SQL Console (UPDATE users SET role = 'admin' WHERE email = '...').
       const newUser = await db.createUser({
         name,
         email,
         password: hashedPassword,
-        role: (role === 'admin' ? 'admin' : 'user'),
+        role: 'user',
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
         phone,
         address,
@@ -110,7 +112,6 @@ export async function POST(
         zipCode
       });
 
-      // NOTE: Auto-login disabled upon user request. User must log in manually.
       return NextResponse.json({
         message: 'অ্যাকাউন্ট সফলভাবে নিবন্ধন করা হয়েছে। অনুগ্রহ করে লগইন করুন।',
         user: newUser

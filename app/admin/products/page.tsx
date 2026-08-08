@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faSearch, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faSearch, faStar, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Product, Category } from '@/lib/db/schema';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,10 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -147,6 +151,12 @@ export default function AdminProductsPage() {
 
   const filtered = products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  // Pagination Math
+  const totalItems = filtered.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filtered.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="space-y-6">
       
@@ -172,7 +182,7 @@ export default function AdminProductsPage() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             aria-label="পণ্যের নাম লিখে খুঁজুন"
             className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none text-slate-800 font-bold"
           />
@@ -181,7 +191,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4 pb-4">
         <div className="overflow-x-auto">
           <table className="table w-full text-xs text-slate-700">
             <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] border-b border-slate-200">
@@ -196,14 +206,14 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {paginatedProducts.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-slate-400 font-bold">
                     কোনো পণ্য পাওয়া যায়নি
                   </td>
                 </tr>
               ) : (
-                filtered.map((p) => (
+                paginatedProducts.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50/80 border-b border-slate-100 font-sans">
                     <td>
                       <div className="flex items-center gap-3">
@@ -260,6 +270,30 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 pt-2 text-xs font-bold text-slate-500">
+            <span>মোট {totalItems} টি পণ্যের মধ্যে {startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalItems)} প্রদর্শিত</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="btn btn-xs btn-ghost rounded-lg font-bold disabled:opacity-40"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
+              </button>
+              <span>পেজ {currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="btn btn-xs btn-ghost rounded-lg font-bold disabled:opacity-40"
+              >
+                <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add / Edit Product Modal */}

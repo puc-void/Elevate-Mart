@@ -8,12 +8,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Admin gets all orders, standard user only gets their own orders
-  const orders = session.role === 'admin' 
-    ? await db.getOrders() 
-    : await db.getOrders(session.id);
+  const { searchParams } = new URL(request.url);
+  const page = searchParams.get('page') ? Number(searchParams.get('page')) : undefined;
+  const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : undefined;
 
-  return NextResponse.json({ orders });
+  // Admin gets all orders, standard user only gets their own orders
+  const result = session.role === 'admin' 
+    ? await db.getOrders({ page, limit }) 
+    : await db.getOrders({ userId: session.id, page, limit });
+
+  return NextResponse.json(result);
 }
 
 export async function POST(request: NextRequest) {
