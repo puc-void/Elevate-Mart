@@ -9,6 +9,17 @@ import toast from 'react-hot-toast';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const BANGLADESH_DISTRICTS = [
+  'ঢাকা', 'চট্টগ্রাম', 'রাজশাহী', 'খুলনা', 'বরিশাল', 'সিলেট', 'রংপুর', 'ময়মনসিংহ',
+  'কুমিল্লা', 'বগুড়া', 'গাজীপুর', 'নারায়ণগঞ্জ', 'কক্সবাজার', 'যশোর', 'দিনাজপুর', 'পাবনা',
+  'টাঙ্গাইল', 'কুষ্টিয়া', 'ফরিদপুর', 'নোয়াখালী', 'ফেনী', 'ব্রাহ্মণবাড়িয়া', 'চাঁদপুর', 'লক্ষ্মীপুর',
+  'সিরাজগঞ্জ', 'নওগাঁ', 'নাটোর', 'চাঁপাইনবাবগঞ্জ', 'জয়পুরহাট', 'কুড়িগ্রাম', 'গাইবান্ধা', 'লালমনিরহাট',
+  'নীলফামারী', 'পঞ্চগড়', 'ঠাকুরগাঁও', 'পটুয়াখালী', 'বরগুনা', 'ভোলা', 'ঝালকাঠি', 'পিরোজপুর',
+  'হবিগঞ্জ', 'মৌলভীবাজার', 'সুনামগঞ্জ', 'নেত্রকোণা', 'শেরপুর', 'জামালপুর', 'গোপালগঞ্জ', 'মাদারীপুর',
+  'শরীয়তপুর', 'রাজবাড়ী', 'নড়াইল', 'মাগুরা', 'ঝিনাইদহ', 'সাতক্ষীরা', 'বাগেরহাট', 'চুয়াডাঙ্গা',
+  'মেহেরপুর', 'খাগড়াছড়ি', 'রাঙ্গামাটি', 'বান্দরবান'
+];
+
 export default function SignupPage() {
   const { signup } = useAuth();
   const [formData, setFormData] = useState({
@@ -18,13 +29,13 @@ export default function SignupPage() {
     confirmPassword: '',
     phone: '',
     address: '',
-    city: '',
+    city: 'ঢাকা',
     zipCode: ''
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -75,7 +86,7 @@ export default function SignupPage() {
   return (
     <div className="relative min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       
-      {/* E-Commerce High-Res Shopping Background Image with Medium Opacity & Overlay */}
+      {/* E-Commerce High-Res Background Image Overlay */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 dark:opacity-30 scale-105 transition-transform duration-1000"
         style={{
@@ -84,10 +95,10 @@ export default function SignupPage() {
       />
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-indigo-950/70 to-slate-950/90 backdrop-blur-sm" />
 
-      {/* Form Card Overlay */}
+      {/* Form Card */}
       <div className="relative z-10 max-w-2xl w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl border border-white/40 dark:border-slate-800 shadow-2xl p-8 space-y-6">
         
-        {/* Title Header */}
+        {/* Title Header with Medium Bengali Font */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-md">
             <FontAwesomeIcon icon={faUserPlus} className="w-7 h-7" />
@@ -101,7 +112,7 @@ export default function SignupPage() {
           {/* Full Name & Email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 পূর্ণ নাম <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -111,14 +122,14 @@ export default function SignupPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faUser} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 ইমেইল অ্যাড্রেস <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -128,7 +139,7 @@ export default function SignupPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -138,7 +149,7 @@ export default function SignupPage() {
           {/* Passwords */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 পাসওয়ার্ড <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -149,14 +160,14 @@ export default function SignupPage() {
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 পাসওয়ার্ড নিশ্চিতকরণ <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -166,7 +177,7 @@ export default function SignupPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faLock} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
@@ -175,7 +186,7 @@ export default function SignupPage() {
 
           {/* Mobile Number */}
           <div>
-            <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               মোবাইল নম্বর <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -185,7 +196,7 @@ export default function SignupPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
               <FontAwesomeIcon icon={faPhone} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
             </div>
@@ -193,7 +204,7 @@ export default function SignupPage() {
 
           {/* Full Shipping Address */}
           <div>
-            <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               বিস্তারিত ঠিকানা (গ্রাম/রোড/বাসা) <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -203,33 +214,38 @@ export default function SignupPage() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
               <FontAwesomeIcon icon={faMapMarkerAlt} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
             </div>
           </div>
 
-          {/* City & Zip Code */}
+          {/* City (64 Bangladesh Districts Select Dropdown) & Zip Code */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                শহর / জেলা <span className="text-rose-500">*</span>
+              <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                জেলা নির্বাচন করুন (৬৪ জেলা) <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
-                <input
-                  type="text"
+                <select
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-                />
-                <FontAwesomeIcon icon={faCity} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-black text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer"
+                >
+                  {BANGLADESH_DISTRICTS.map((district) => (
+                    <option key={district} value={district} className="font-bold text-slate-900 bg-white dark:bg-slate-900 dark:text-white">
+                      {district}
+                    </option>
+                  ))}
+                </select>
+                <FontAwesomeIcon icon={faCity} className="absolute left-4 top-4 w-4 h-4 text-slate-400 pointer-events-none" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs sm:text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 পোস্টাল / জিও কোড <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -239,7 +255,7 @@ export default function SignupPage() {
                   value={formData.zipCode}
                   onChange={handleChange}
                   required
-                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  className="w-full pl-11 pr-3 py-3 bg-slate-50/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 font-bold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
                 <FontAwesomeIcon icon={faMailBulk} className="absolute left-4 top-4 w-4 h-4 text-slate-400" />
               </div>
